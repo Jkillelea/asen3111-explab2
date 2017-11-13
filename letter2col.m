@@ -1,0 +1,6 @@
+function col = letter2col(str)
+% Change CSV spreadsheet columns 'A', 'B', 'C' ... 'AA', 'ZZ' ...
+% to a zero-based index           0,   1,   2  ...  26,   51 ...
+  col = 26*(length(str) -1); % AA is position 26
+  col = col + str(end) - 65;
+end
