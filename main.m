@@ -66,48 +66,27 @@ for i = 1:length(data)
   alpha25 = alpha(speed25);
   alpha15 = alpha(speed15);
 
-  idxs = group_into(alpha25, measurement_alphas, 0.5);
-  empty_place = zeros(1, length(idxs));
-  for j = 1:length(idxs)
-    if isempty(idxs{j})
-      empty_place(j) = true;
-    end
-  end
-  idxs = idxs(~logical(empty_place));
-
-  tmp = zeros(length(idxs), 3);
-  for j = 1:length(idxs)
-    tmp(j, 1) = mean(CL25(idxs{j}));
-    tmp(j, 2) = mean(CD25(idxs{j}));
-    tmp(j, 3) = mean(CMLE25(idxs{j}));
-    tmp(j, 4) = mean(alpha25(idxs{j}));
-  end
+  % ==== ATTENTION ====
+  % This next section looks pretty gross - so here's a summarry
+  % We have 500 measurements at each alpha, all loosely grouped around specific alpha value
+  % Since we know where those measurements are supposed to actually go, we can pick out the relevant indexes
+  % And then pick out the cooresponding data and average it into one data point
+  idxs    = group_into(alpha25, measurement_alphas, 0.5); % Get the indexes
+  idxs    = rm_empty_cells(idxs);
+  tmp     = mean_by_idxs(idxs, [CL25, CD25, CMLE25, alpha25]);
   CL25    = tmp(:, 1);
   CD25    = tmp(:, 2);
   CMLE25  = tmp(:, 3);
   alpha25 = tmp(:, 4);
 
-
-  idxs = group_into(alpha15, measurement_alphas, 0.5);
-  empty_place = zeros(1, length(idxs));
-  for j = 1:length(idxs)
-    if isempty(idxs{j})
-      empty_place(j) = true;
-    end
-  end
-  idxs = idxs(~logical(empty_place));
-
-  tmp = zeros(length(idxs), 3);
-  for j = 1:length(idxs)
-    tmp(j, 1) = mean(CL15(idxs{j}));
-    tmp(j, 2) = mean(CD15(idxs{j}));
-    tmp(j, 3) = mean(CMLE15(idxs{j}));
-    tmp(j, 4) = mean(alpha15(idxs{j}));
-  end
+  idxs    = group_into(alpha15, measurement_alphas, 0.5); % Get the indexes
+  idxs    = rm_empty_cells(idxs);
+  tmp     = mean_by_idxs(idxs, [CL15, CD15, CMLE15, alpha15]);
   CL15    = tmp(:, 1);
   CD15    = tmp(:, 2);
   CMLE15  = tmp(:, 3);
   alpha15 = tmp(:, 4);
+  % BLAM! Instead of 500 data points sort of milling about each location (16 locations), we now have only one
 
 
   figure('visible', 'off'); hold on; grid on; % 25 m/s plot
