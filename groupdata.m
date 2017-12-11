@@ -8,6 +8,8 @@ function out = groupdata(str)
   end
   if contains(str, 'Long')
     type = 'long';
+  elseif contains(str, 'Elliptical')
+    type = 'elliptical';
   else
     type = 'short';
   end
