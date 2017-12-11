@@ -71,39 +71,30 @@ for i = 1:length(data)
   % We have 500 measurements at each alpha, all loosely grouped around specific alpha value
   % Since we know where those measurements are supposed to actually go, we can pick out the relevant indexes
   % And then pick out the cooresponding data and average it into one data point
-  idxs    = group_into(alpha25, measurement_alphas, 0.5); % Get the indexes
-  idxs    = rm_empty_cells(idxs);
+  idxs    = rm_empty_cells(group_into(alpha25, measurement_alphas, 0.5)); % Get the indexes
   tmp     = mean_by_idxs(idxs, [CL25, CD25, CMLE25, alpha25]);
   CL25    = tmp(:, 1);
   CD25    = tmp(:, 2);
   CMLE25  = tmp(:, 3);
   alpha25 = tmp(:, 4);
 
-  idxs    = group_into(alpha15, measurement_alphas, 0.5); % Get the indexes
-  idxs    = rm_empty_cells(idxs);
+  idxs    = rm_empty_cells(group_into(alpha15, measurement_alphas, 0.5)); % Get the indexes
   tmp     = mean_by_idxs(idxs, [CL15, CD15, CMLE15, alpha15]);
   CL15    = tmp(:, 1);
   CD15    = tmp(:, 2);
   CMLE15  = tmp(:, 3);
   alpha15 = tmp(:, 4);
-  % BLAM! Instead of 500 data points sort of milling about each location (16 locations), we now have only one
+  % BLAM! Instead of 500 data points sort of milling about each location (and 16 different locations), we now have only one at each
 
-
-  figure('visible', 'off'); hold on; grid on; % 25 m/s plot
-  plot(alpha25, CL25, 'displayname', 'C_L');
-  plot(alpha25, CD25, 'displayname', 'C_D');
-  plot(alpha25, CMLE25, 'displayname', 'C_{MLE}');
-  title(sprintf('%s wing, %s angles, 25 m/s', ...
-                file_info.type, file_info.angles));
-  xlabel('Angle of Attack (degrees)');
-  ylabel('C_l, C_d, C_m_{le} (unitless)');
-  legend('show', 'location', 'southeast');
-  print(['graphs/', gen_filename(file_info, 25)], '-dpng');
-
+  % Create and save an assload of plots. Don't bother displaying them to the user (it gets in the way)
   figure('visible', 'off'); hold on; grid on; % 15 m/s plot
-  plot(alpha15, CL15, 'displayname', 'C_L');
-  plot(alpha15, CD15, 'displayname', 'C_D');
-  plot(alpha15, CMLE15, 'displayname', 'C_{MLE}');
+  l = fit(alpha15, CL15,   'smoothingspline');
+  d = fit(alpha15, CD15,   'smoothingspline');
+  m = fit(alpha15, CMLE15, 'smoothingspline');
+  alpha_range = linspace(min(alpha15), max(alpha15), 10000);
+  plot(alpha_range, l(alpha_range), 'displayname', 'C_L');
+  plot(alpha_range, d(alpha_range), 'displayname', 'C_D');
+  plot(alpha_range, m(alpha_range), 'displayname', 'C_{MLE}');
   title(sprintf('%s wing, %s angles, 15 m/s', ...
                 file_info.type, file_info.angles));
   xlabel('Angle of Attack (degrees)');
@@ -111,5 +102,24 @@ for i = 1:length(data)
   legend('show', 'location', 'southeast');
   print(['graphs/', gen_filename(file_info, 15)], '-dpng');
 
+  figure('visible', 'off'); hold on; grid on; % 25 m/s plot
+  l = fit(alpha25, CL25,   'smoothingspline');
+  d = fit(alpha25, CD25,   'smoothingspline');
+  m = fit(alpha25, CMLE25, 'smoothingspline');
+  alpha_range = linspace(min(alpha25), max(alpha25), 10000);
+  plot(alpha_range, l(alpha_range), 'displayname', 'C_L');
+  plot(alpha_range, d(alpha_range), 'displayname', 'C_D');
+  plot(alpha_range, m(alpha_range), 'displayname', 'C_{MLE}');
+  title(sprintf('%s wing, %s angles, 25 m/s', ...
+  file_info.type, file_info.angles));
+  xlabel('Angle of Attack (degrees)');
+  ylabel('C_l, C_d, C_m_{le} (unitless)');
+  legend('show', 'location', 'southeast');
+  print(['graphs/', gen_filename(file_info, 25)], '-dpng');
+
   close all;
+
+  fprintf('clmax %.1f @ alpha %.1f\n', l(alpha_range(idx)), alpha_range(idx));
 end
+
+disp('generated graphs in folder ./graphs/');
