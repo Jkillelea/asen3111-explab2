@@ -3,7 +3,7 @@ clc;
 close all;
 
 data_dir = 'data/';
-alphas   = -11:20;
+measurement_alphas   = -11:20;
 
 [short, long, elliptical] = getfiles(data_dir);
 data = [short; long; elliptical];
@@ -16,6 +16,7 @@ wing_areas = [square_mm_to_m(14400); % Long
 chord = 60/1000; % meters
 
 for i = 1:length(data)
+  fprintf('%d / %d\n', i, length(data));
   fname = data(i).name;
   file_info = groupdata(fname);
 
@@ -57,36 +58,77 @@ for i = 1:length(data)
 
   CL15   = L15/(q15*S);
   CD15   = D15/(q15*S);
-  CMLE15 = M15/(q15*S*chord);
+  CMLE15 = -M15/(q15*S*chord);
   CL25   = L25/(q25*S);
   CD25   = D25/(q25*S);
-  CMLE25 = M25/(q25*S*chord);
+  CMLE25 = -M25/(q25*S*chord);
 
-  figure; hold on; grid on; % 25 m/s plot
-  l = fit(alpha(speed25), CL25,   'smoothingspline');
-  d = fit(alpha(speed25), CD25,   'smoothingspline');
-  m = fit(alpha(speed25), CMLE25, 'smoothingspline');
-  plot(alpha(speed25), feval(l, alpha(speed25)), 'displayname', 'C_L');
-  plot(alpha(speed25), feval(d, alpha(speed25)), 'displayname', 'C_D');
-  plot(alpha(speed25), feval(m, alpha(speed25)), 'displayname', 'C_{MLE}');
+  alpha25 = alpha(speed25);
+  alpha15 = alpha(speed15);
+
+  idxs = group_into(alpha25, measurement_alphas, 0.5);
+  empty_place = zeros(1, length(idxs));
+  for j = 1:length(idxs)
+    if isempty(idxs{j})
+      empty_place(j) = true;
+    end
+  end
+  idxs = idxs(~logical(empty_place));
+
+  tmp = zeros(length(idxs), 3);
+  for j = 1:length(idxs)
+    tmp(j, 1) = mean(CL25(idxs{j}));
+    tmp(j, 2) = mean(CD25(idxs{j}));
+    tmp(j, 3) = mean(CMLE25(idxs{j}));
+    tmp(j, 4) = mean(alpha25(idxs{j}));
+  end
+  CL25    = tmp(:, 1);
+  CD25    = tmp(:, 2);
+  CMLE25  = tmp(:, 3);
+  alpha25 = tmp(:, 4);
+
+
+  idxs = group_into(alpha15, measurement_alphas, 0.5);
+  empty_place = zeros(1, length(idxs));
+  for j = 1:length(idxs)
+    if isempty(idxs{j})
+      empty_place(j) = true;
+    end
+  end
+  idxs = idxs(~logical(empty_place));
+
+  tmp = zeros(length(idxs), 3);
+  for j = 1:length(idxs)
+    tmp(j, 1) = mean(CL15(idxs{j}));
+    tmp(j, 2) = mean(CD15(idxs{j}));
+    tmp(j, 3) = mean(CMLE15(idxs{j}));
+    tmp(j, 4) = mean(alpha15(idxs{j}));
+  end
+  CL15    = tmp(:, 1);
+  CD15    = tmp(:, 2);
+  CMLE15  = tmp(:, 3);
+  alpha15 = tmp(:, 4);
+
+
+  figure('visible', 'off'); hold on; grid on; % 25 m/s plot
+  plot(alpha25, CL25, 'displayname', 'C_L');
+  plot(alpha25, CD25, 'displayname', 'C_D');
+  plot(alpha25, CMLE25, 'displayname', 'C_{MLE}');
   title(sprintf('%s wing, %s angles, 25 m/s', ...
                 file_info.type, file_info.angles));
   xlabel('Angle of Attack (degrees)');
-  ylabel('Force (N)');
+  ylabel('C_l, C_d, C_m_{le} (unitless)');
   legend('show', 'location', 'southeast');
   print(['graphs/', gen_filename(file_info, 25)], '-dpng');
 
-  figure; hold on; grid on; % 15 m/s plot
-  l = fit(alpha(speed15), L15,   'smoothingspline');
-  d = fit(alpha(speed15), D15,   'smoothingspline');
-  m = fit(alpha(speed25), CMLE15, 'smoothingspline');
-  plot(alpha(speed15), feval(l, alpha(speed15)), 'displayname', 'C_L');
-  plot(alpha(speed15), feval(d, alpha(speed15)), 'displayname', 'C_D');
-  plot(alpha(speed15), feval(m, alpha(speed15)), 'displayname', 'C_{MLE}');
+  figure('visible', 'off'); hold on; grid on; % 15 m/s plot
+  plot(alpha15, CL15, 'displayname', 'C_L');
+  plot(alpha15, CD15, 'displayname', 'C_D');
+  plot(alpha15, CMLE15, 'displayname', 'C_{MLE}');
   title(sprintf('%s wing, %s angles, 15 m/s', ...
                 file_info.type, file_info.angles));
   xlabel('Angle of Attack (degrees)');
-  ylabel('Force (N)');
+  ylabel('C_l, C_d, C_m_{le} (unitless)');
   legend('show', 'location', 'southeast');
   print(['graphs/', gen_filename(file_info, 15)], '-dpng');
 
