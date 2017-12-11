@@ -2,7 +2,12 @@ clear;
 clc;
 close all;
 
-data_dir = 'data/';
+outfile = fopen('results.txt', 'w');
+if outfile < 0
+  error('Unable to create an output file');
+end
+
+data_dir             = 'data/';
 measurement_alphas   = -11:20;
 
 [short, long, elliptical] = getfiles(data_dir);
@@ -92,6 +97,11 @@ for i = 1:length(data)
   d = fit(alpha15, CD15,   'smoothingspline');
   m = fit(alpha15, CMLE15, 'smoothingspline');
   alpha_range = linspace(min(alpha15), max(alpha15), 10000);
+
+  idx = firstpeak(l, alpha_range);
+  clmax = l(alpha_range(idx));
+  plot(alpha_range(idx), clmax, 'ro', 'displayname', 'Stall')
+
   plot(alpha_range, l(alpha_range), 'displayname', 'C_L');
   plot(alpha_range, d(alpha_range), 'displayname', 'C_D');
   plot(alpha_range, m(alpha_range), 'displayname', 'C_{MLE}');
@@ -107,9 +117,16 @@ for i = 1:length(data)
   d = fit(alpha25, CD25,   'smoothingspline');
   m = fit(alpha25, CMLE25, 'smoothingspline');
   alpha_range = linspace(min(alpha25), max(alpha25), 10000);
+
+  idx = firstpeak(l, alpha_range);
+  clmax = l(alpha_range(idx));
+  plot(alpha_range(idx), clmax, 'ro', 'displayname', 'Stall')
+
   plot(alpha_range, l(alpha_range), 'displayname', 'C_L');
   plot(alpha_range, d(alpha_range), 'displayname', 'C_D');
   plot(alpha_range, m(alpha_range), 'displayname', 'C_{MLE}');
+
+
   title(sprintf('%s wing, %s angles, 25 m/s', ...
   file_info.type, file_info.angles));
   xlabel('Angle of Attack (degrees)');
@@ -119,7 +136,15 @@ for i = 1:length(data)
 
   close all;
 
-  fprintf('clmax %.1f @ alpha %.1f\n', l(alpha_range(idx)), alpha_range(idx));
+  zero_lift_alpha = fzero(l, 0); % degrees
+  fprintf(outfile, 'Section %d Group %d\n',         file_info.section, file_info.group);
+  fprintf(outfile, '    Type: %s, %s angles\n',       file_info.type, file_info.angles);
+  fprintf(outfile, '    Zero lift at alpha %.2f\n',   zero_lift_alpha);
+  fprintf(outfile, '    Lift slope %.2f pi\n',        differentiate(l, 0)*(180/pi^2)); % report as per-radian
+  fprintf(outfile, '    CL max %.2f at alpha %.2f\n', clmax, alpha_range(idx));
 end
 
 disp('generated graphs in folder ./graphs/');
+disp('Results printed to output file ./results.txt');
+
+fclose(outfile);

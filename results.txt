@@ -1,0 +1,125 @@
+Section 1 Group 1
+    Type: short, even angles
+    Zero lift at alpha 0.27
+    Lift slope 1.70 pi
+    CL max 0.73 at alpha 11.89
+Section 1 Group 2
+    Type: short, odd angles
+    Zero lift at alpha -1.19
+    Lift slope 2.34 pi
+    CL max 0.91 at alpha 9.75
+Section 1 Group 3
+    Type: short, even angles
+    Zero lift at alpha -1.99
+    Lift slope 2.19 pi
+    CL max 1.03 at alpha 9.83
+Section 2 Group 1
+    Type: short, odd angles
+    Zero lift at alpha 0.20
+    Lift slope 1.90 pi
+    CL max 0.68 at alpha 11.00
+Section 2 Group 2
+    Type: short, even angles
+    Zero lift at alpha -1.99
+    Lift slope 2.19 pi
+    CL max 1.03 at alpha 9.83
+Section 2 Group 3
+    Type: short, odd angles
+    Zero lift at alpha -1.19
+    Lift slope 2.34 pi
+    CL max 0.91 at alpha 9.75
+Section 3 Group 1
+    Type: short, even angles
+    Zero lift at alpha 0.59
+    Lift slope 1.77 pi
+    CL max 0.69 at alpha 11.66
+Section 3 Group 2
+    Type: short, odd angles
+    Zero lift at alpha 0.33
+    Lift slope 1.92 pi
+    CL max 0.70 at alpha 11.01
+Section 3 Group 3
+    Type: short, even angles
+    Zero lift at alpha -1.99
+    Lift slope 2.19 pi
+    CL max 1.03 at alpha 9.83
+Section 3 Group 4
+    Type: short, odd angles
+    Zero lift at alpha -1.19
+    Lift slope 2.34 pi
+    CL max 0.91 at alpha 9.75
+Section 1 Group 4
+    Type: long, even angles
+    Zero lift at alpha -0.29
+    Lift slope 2.33 pi
+    CL max 1.15 at alpha 14.83
+Section 1 Group 5
+    Type: long, odd angles
+    Zero lift at alpha 0.01
+    Lift slope 2.52 pi
+    CL max 1.13 at alpha 13.97
+Section 1 Group 6
+    Type: long, even angles
+    Zero lift at alpha -0.64
+    Lift slope 2.19 pi
+    CL max 0.83 at alpha 10.28
+Section 2 Group 4
+    Type: long, odd angles
+    Zero lift at alpha 0.36
+    Lift slope 2.33 pi
+    CL max 0.98 at alpha 11.03
+Section 2 Group 5
+    Type: long, even angles
+    Zero lift at alpha -0.62
+    Lift slope 2.36 pi
+    CL max 0.96 at alpha 10.41
+Section 2 Group 6
+    Type: long, odd angles
+    Zero lift at alpha -0.86
+    Lift slope 2.11 pi
+    CL max 0.96 at alpha 13.66
+Section 2 Group 7
+    Type: long, even angles
+    Zero lift at alpha -0.53
+    Lift slope 2.20 pi
+    CL max 0.85 at alpha 9.95
+Section 3 Group 5
+    Type: long, odd angles
+    Zero lift at alpha -0.01
+    Lift slope 2.44 pi
+    CL max 1.10 at alpha 13.27
+Section 3 Group 6
+    Type: long, even angles
+    Zero lift at alpha -0.39
+    Lift slope 2.71 pi
+    CL max 0.97 at alpha 10.25
+Section 3 Group 7
+    Type: long, odd angles
+    Zero lift at alpha -0.20
+    Lift slope 2.09 pi
+    CL max 0.93 at alpha 17.02
+Section 1 Group 7
+    Type: elliptical, even angles
+    Zero lift at alpha -0.79
+    Lift slope 2.32 pi
+    CL max 1.29 at alpha 14.68
+Section 1 Group 8
+    Type: elliptical, odd angles
+    Zero lift at alpha 0.08
+    Lift slope 1.55 pi
+    CL max 1.18 at alpha 14.71
+Section 2 Group 9
+    Type: elliptical, odd angles
+    Zero lift at alpha 0.93
+    Lift slope 1.53 pi
+    CL max 1.19 at alpha 15.26
+Section 3 Group 8
+    Type: elliptical, odd angles
+    Zero lift at alpha 0.09
+    Lift slope 1.75 pi
+    CL max 1.21 at alpha 14.39
+Section 3 Group 9
+    Type: elliptical, even angles
+    Zero lift at alpha 0.88
+    Lift slope 1.74 pi
+    CL max 1.21 at alpha 15.41
