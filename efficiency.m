@@ -23,7 +23,7 @@ short_span  = mm2ft(180);
 % tip chord = 1mm
 % span = 180mm
 % NACA 0012
-e_span = mm2ft(180);
+e_span = mm2ft(180); 
 e_c_r  = mm2ft(60);
 e_c_t  = mm2ft(10);
 
