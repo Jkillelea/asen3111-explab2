@@ -15,10 +15,21 @@ data = [short; long; elliptical];
 
 moment_arm = (6.67 + 72.75)/1000; % m
 
+elliptical_data15 = [];
+elliptical_data25 = [];
+long_data15       = [];
+long_data25       = [];
+short_data15      = [];
+short_data25      = [];
+
 wing_areas = [square_mm_to_m(14400); % Long
               square_mm_to_m(10800); % Short
               square_mm_to_m(2700*pi)]; % Elliptical
-chord = 60/1000; % meters
+
+long_ar       = ((240/1000)^2)/wing_areas(1);
+short_ar      = ((180/1000)^2)/wing_areas(2);
+elliptical_ar = ((180/1000)^2)/wing_areas(3);
+chord         = 60/1000; % meters
 
 for i = 1:length(data)
   fprintf('%d / %d\n', i, length(data));
@@ -98,6 +109,7 @@ for i = 1:length(data)
   m = fit(alpha15, CMLE15, 'smoothingspline');
   alpha_range = linspace(min(alpha15), max(alpha15), 10000);
 
+
   idx = firstpeak(l, alpha_range);
   clmax = l(alpha_range(idx));
   plot(alpha_range(idx), clmax, 'ro', 'displayname', 'Stall')
@@ -111,6 +123,19 @@ for i = 1:length(data)
   ylabel('C_l, C_d, C_m_{le} (unitless)');
   legend('show', 'location', 'southeast');
   print(['graphs/', gen_filename(file_info, 15)], '-dpng');
+
+  cdi = d(5) - d(0);
+  cl  = l(5);
+  dl_dalpha = differentiate(l, 0)*(180/pi);
+  zero_lift_alpha = fzero(l, 0); % degrees
+
+  if strcmp(file_info.type, 'long')
+    long_data15(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  elseif strcmp(file_info.type, 'short')
+    short_data15(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  else
+    elliptical_data15(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  end
 
   figure('visible', 'off'); hold on; grid on; % 25 m/s plot
   l = fit(alpha25, CL25,   'smoothingspline');
@@ -126,7 +151,6 @@ for i = 1:length(data)
   plot(alpha_range, d(alpha_range), 'displayname', 'C_D');
   plot(alpha_range, m(alpha_range), 'displayname', 'C_{MLE}');
 
-
   title(sprintf('%s wing, %s angles, 25 m/s', ...
   file_info.type, file_info.angles));
   xlabel('Angle of Attack (degrees)');
@@ -134,17 +158,122 @@ for i = 1:length(data)
   legend('show', 'location', 'southeast');
   print(['graphs/', gen_filename(file_info, 25)], '-dpng');
 
-  close all;
-
+  cdi = d(5) - d(0);
+  cl  = l(5);
+  dl_dalpha = differentiate(l, 0)*(180/pi);
   zero_lift_alpha = fzero(l, 0); % degrees
-  fprintf(outfile, 'Section %d Group %d\n',         file_info.section, file_info.group);
-  fprintf(outfile, '    Type: %s, %s angles\n',       file_info.type, file_info.angles);
-  fprintf(outfile, '    Zero lift at alpha %.2f\n',   zero_lift_alpha);
-  fprintf(outfile, '    Lift slope %.2f pi\n',        differentiate(l, 0)*(180/pi^2)); % report as per-radian
-  fprintf(outfile, '    CL max %.2f at alpha %.2f\n', clmax, alpha_range(idx));
+
+  if strcmp(file_info.type, 'long')
+    long_data25(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  elseif strcmp(file_info.type, 'short')
+    short_data25(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  else
+    elliptical_data25(i, :) = [zero_lift_alpha, dl_dalpha, clmax, alpha_range(idx), cdi, cl];
+  end
+
+  close all;
 end
 
+disp(' ----------------------------------- ');
+
+indexes = short_data15 ~= zeros(1, size(short_data15, 2));
+zerolift   = mean(short_data15(indexes(:, 1), 1));
+liftslope  = mean(short_data15(indexes(:, 2), 2));
+stallangle = mean(short_data15(indexes(:, 4), 4));
+clmax      = mean(short_data15(indexes(:, 3), 3));
+cdi        = mean(short_data15(indexes(:, 3), 5));
+cl         = mean(short_data15(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * short_ar);
+disp('Short Wing 15');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+indexes = short_data25 ~= zeros(1, size(short_data25, 2));
+zerolift   = mean(short_data25(indexes(:, 1), 1));
+liftslope  = mean(short_data25(indexes(:, 2), 2));
+stallangle = mean(short_data25(indexes(:, 4), 4));
+clmax      = mean(short_data25(indexes(:, 3), 3));
+cdi        = mean(short_data25(indexes(:, 3), 5));
+cl         = mean(short_data25(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * short_ar);
+disp('Short Wing 25');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+indexes = long_data15 ~= zeros(1, size(long_data15, 2));
+zerolift   = mean(long_data15(indexes(:, 1), 1));
+liftslope  = mean(long_data15(indexes(:, 2), 2));
+stallangle = mean(long_data15(indexes(:, 4), 4));
+clmax      = mean(long_data15(indexes(:, 3), 3));
+cdi        = mean(long_data15(indexes(:, 3), 5));
+cl         = mean(long_data15(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * long_ar);
+disp('Long Wing 15');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+indexes = long_data25 ~= zeros(1, size(long_data25, 2));
+zerolift   = mean(long_data25(indexes(:, 1), 1));
+liftslope  = mean(long_data25(indexes(:, 2), 2));
+stallangle = mean(long_data25(indexes(:, 4), 4));
+clmax      = mean(long_data25(indexes(:, 3), 3));
+cdi        = mean(long_data25(indexes(:, 3), 5));
+cl         = mean(long_data25(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * long_ar);
+disp('Long Wing 25');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+indexes = elliptical_data15 ~= zeros(1, size(elliptical_data15, 2));
+zerolift   = mean(elliptical_data15(indexes(:, 1), 1));
+liftslope  = mean(elliptical_data15(indexes(:, 2), 2));
+stallangle = mean(elliptical_data15(indexes(:, 4), 4));
+clmax      = mean(elliptical_data15(indexes(:, 3), 3));
+cdi        = mean(elliptical_data15(indexes(:, 3), 5));
+cl         = mean(elliptical_data15(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * elliptical_ar);
+disp('Elliptical Wing 15');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+indexes = elliptical_data25 ~= zeros(1, size(elliptical_data25, 2));
+zerolift   = mean(elliptical_data25(indexes(:, 1), 1));
+liftslope  = mean(elliptical_data25(indexes(:, 2), 2));
+stallangle = mean(elliptical_data25(indexes(:, 4), 4));
+clmax      = mean(elliptical_data25(indexes(:, 3), 3));
+cdi        = mean(elliptical_data25(indexes(:, 3), 5));
+cl         = mean(elliptical_data25(indexes(:, 3), 6));
+e = cl^2/(pi * cdi * elliptical_ar);
+disp('Elliptical Wing 25');
+fprintf('Zero lift %.2f degrees\n', zerolift);
+fprintf('lift slope %.2f\n', liftslope);
+fprintf('stall angle %.2f degrees\n', stallangle);
+fprintf('clmax %.2f\n', clmax);
+fprintf('cdi %.4f\n', cdi);
+fprintf('e %.4f\n', e);
+
+
+disp(' ----------------------------------- ');
 disp('generated graphs in folder ./graphs/');
-disp('Results printed to output file ./results.txt');
 
 fclose(outfile);
